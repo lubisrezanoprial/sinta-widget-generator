@@ -1,1 +1,364 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SINTA Widget Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 800px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 0.95em;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+
+        input[type="text"],
+        input[type="url"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="url"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn-generate {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-generate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-generate:active {
+            transform: translateY(0);
+        }
+
+        .result-section {
+            display: none;
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #f0f0f0;
+        }
+
+        .result-section.active {
+            display: block;
+        }
+
+        .preview {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .preview h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .preview img {
+            max-width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .code-container {
+            background: #1e1e1e;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .code-container h3 {
+            color: white;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .code-block {
+            background: #2d2d2d;
+            border-radius: 6px;
+            padding: 15px;
+            color: #d4d4d4;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            overflow-x: auto;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+        }
+
+        .btn-copy {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85em;
+            transition: background 0.2s;
+        }
+
+        .btn-copy:hover {
+            background: #5568d3;
+        }
+
+        .btn-copy.copied {
+            background: #4caf50;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 20px;
+        }
+
+        .info-box h4 {
+            color: #1976d2;
+            margin-bottom: 8px;
+            font-size: 1em;
+        }
+
+        .info-box ol {
+            margin-left: 20px;
+            color: #555;
+            line-height: 1.8;
+        }
+
+        .error {
+            color: #d32f2f;
+            font-size: 0.9em;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .error.active {
+            display: block;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 25px;
+            }
+
+            h1 {
+                font-size: 1.5em;
+            }
+
+            .btn-copy {
+                position: static;
+                display: block;
+                margin-top: 10px;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎓 SINTA Widget Generator</h1>
+        <p class="subtitle">Buat widget SINTA untuk OJS Anda dengan mudah</p>
+
+        <form id="generatorForm">
+            <div class="input-group">
+                <label for="sintaId">ID SINTA:</label>
+                <input type="text" id="sintaId" placeholder="Contoh: 292, 6001531, dll" required>
+                <span class="error" id="errorSinta">Harap masukkan ID SINTA yang valid</span>
+            </div>
+
+            <div class="input-group">
+                <label for="blogUrl">URL Blog Anda (opsional):</label>
+                <input type="url" id="blogUrl" placeholder="https://blog-anda.blogspot.com">
+                <span class="error" id="errorUrl">Harap masukkan URL yang valid</span>
+            </div>
+
+            <button type="submit" class="btn-generate">Generate Widget Code</button>
+        </form>
+
+        <div class="result-section" id="resultSection">
+            <div class="preview">
+                <h3>Preview Widget:</h3>
+                <img id="previewImage" src="" alt="SINTA Widget Preview">
+            </div>
+
+            <div class="code-container">
+                <h3>Kode untuk OJS:</h3>
+                <button class="btn-copy" onclick="copyCode('ojsCode')">Copy</button>
+                <div class="code-block" id="ojsCode"></div>
+            </div>
+
+            <div class="code-container">
+                <h3>Kode untuk HTML/Blogger:</h3>
+                <button class="btn-copy" onclick="copyCode('htmlCode')">Copy</button>
+                <div class="code-block" id="htmlCode"></div>
+            </div>
+
+            <div class="info-box">
+                <h4>📝 Cara Memasang di OJS:</h4>
+                <ol>
+                    <li>Login ke dashboard OJS Anda</li>
+                    <li>Pergi ke <strong>Settings → Website → Sidebar</strong></li>
+                    <li>Tambahkan <strong>Custom Block</strong> baru</li>
+                    <li>Paste kode yang sudah di-copy ke dalam block</li>
+                    <li>Save dan lihat hasilnya di sidebar OJS Anda</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('generatorForm');
+        const resultSection = document.getElementById('resultSection');
+        const previewImage = document.getElementById('previewImage');
+        const ojsCode = document.getElementById('ojsCode');
+        const htmlCode = document.getElementById('htmlCode');
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const sintaId = document.getElementById('sintaId').value.trim();
+            const blogUrl = document.getElementById('blogUrl').value.trim();
+            
+            // Validation
+            if (!sintaId || !/^\d+$/.test(sintaId)) {
+                showError('errorSinta');
+                return;
+            }
+            
+            if (blogUrl && !isValidUrl(blogUrl)) {
+                showError('errorUrl');
+                return;
+            }
+            
+            hideErrors();
+            generateWidget(sintaId, blogUrl);
+        });
+
+        function generateWidget(sintaId, blogUrl) {
+            // Ganti dengan URL Vercel Anda setelah deploy
+            const baseUrl = blogUrl || 'https://sinta-widget-generator.vercel.app';
+            const widgetUrl = `${baseUrl}/api/sinta?id=${sintaId}`;
+            
+            // Update preview
+            previewImage.src = widgetUrl;
+            
+            // Generate OJS code
+            const ojsCodeText = `<img decoding="async" src="${widgetUrl}" width="100%" alt="SINTA Profile Widget"/>`;
+            ojsCode.textContent = ojsCodeText;
+            
+            // Generate HTML code
+            const htmlCodeText = `<!-- SINTA Widget by ${baseUrl} -->
+<div class="sinta-widget">
+    <img src="${widgetUrl}" width="100%" alt="SINTA Profile Widget"/>
+</div>`;
+            htmlCode.textContent = htmlCodeText;
+            
+            // Show result
+            resultSection.classList.add('active');
+            resultSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function copyCode(elementId) {
+            const codeElement = document.getElementById(elementId);
+            const text = codeElement.textContent;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.classList.remove('copied');
+                }, 2000);
+            });
+        }
+
+        function isValidUrl(string) {
+            try {
+                new URL(string);
+                return true;
+            } catch (_) {
+                return false;
+            }
+        }
+
+        function showError(errorId) {
+            document.getElementById(errorId).classList.add('active');
+        }
+
+        function hideErrors() {
+            document.querySelectorAll('.error').forEach(el => {
+                el.classList.remove('active');
+            });
+        }
+    </script>
+</body>
+</html>
