@@ -1,1 +1,7 @@
+// File 3: .gitignore
+node_modules/
+.vercel
+.env
+*.log
+.DS_Store
 
