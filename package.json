@@ -1,1 +1,84 @@
+// File 1: package.json
+{
+  "name": "sinta-widget-generator",
+  "version": "1.0.0",
+  "description": "SINTA Widget Generator for OJS",
+  "main": "api/sinta.js",
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel --prod"
+  },
+  "dependencies": {
+    "canvas": "^2.11.2"
+  },
+  "engines": {
+    "node": ">=18.x"
+  }
+}
 
+// File 2: vercel.json
+{
+  "functions": {
+    "api/sinta.js": {
+      "memory": 1024,
+      "maxDuration": 10
+    }
+  },
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, OPTIONS"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
+        }
+      ]
+    }
+  ]
+}
+
+// File 3: .gitignore
+node_modules/
+.vercel
+.env
+*.log
+.DS_Store
+
+// File 4: README.md (untuk GitHub)
+# SINTA Widget Generator
+
+Widget generator untuk menampilkan profil SINTA di OJS.
+
+## Deployment
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/username/sinta-widget)
+
+## Usage
+
+```html
+<img src="https://your-project.vercel.app/api/sinta?id=292" width="100%" />
+```
+
+## Features
+
+- ✅ Real-time SINTA data
+- ✅ Auto-caching (1 hour)
+- ✅ Responsive design
+- ✅ Free hosting on Vercel
+
+## Local Development
+
+```bash
+npm install
+npm run dev
+```
+
+Open http://localhost:3000/api/sinta?id=292
