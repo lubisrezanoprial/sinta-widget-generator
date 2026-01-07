@@ -1,2 +1,3 @@
-# sinta-widget-generator
-SINTA Widget Generator for OJS
+# SINTA Widget Generator
+
+Widget generator untuk menampilkan profil SINTA di OJS.
